@@ -1,0 +1,6 @@
+{
+  "name": "Quiz Master BD",
+  "description": "বাংলা সাধারণ জ্ঞান কুইজ গেম — ৫০টি প্রশ্ন, কয়েন রিওয়ার্ড এবং লিডারবোর্ডসহ টেলিগ্রাম মিনি অ্যাপ।",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

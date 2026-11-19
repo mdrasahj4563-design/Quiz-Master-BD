@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Quiz Master BD — বাংলা সাধারণ জ্ঞান কুইজ</title>
+  <meta name="theme-color" content="#064E3B" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green-950: #022C22;
+      --green-900: #064E3B;
+      --green-800: #065F46;
+      --green-700: #047857;
+      --green-600: #059669;
+      --green-100: #D1FAE5;
+      --green-50: #ECFDF5;
+      --surface-bg: #F5FAF7;
+      --white: #FFFFFF;
+      --ink: #0F172A;
+      --muted: #64748B;
+      --border: rgba(6, 78, 59, 0.12);
+      --gold: #F59E0B;
+      --rose-600: #E11D48;
+      --rose-50: #FFF1F2;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100dvh;
+      font-family: 'Hind Siliguri', system-ui, -apple-system, sans-serif;
+      background: var(--green-900);
+      color: var(--ink);
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stage {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app-shell {
+      width: 100%;
+      min-height: 100dvh;
+      background: var(--surface-bg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    @media (min-width: 640px) {
+      .stage {
+        padding: 20px;
+      }
+      .app-shell {
+        max-width: 460px;
+        min-height: 680px;
+        max-height: 860px;
+        border-radius: 28px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(16, 185, 129, 0.25);
+      }
+    }
+
+    .hud {
+      background: var(--green-800);
+      color: var(--white);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .hud-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .hud-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .coin-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(6, 78, 59, 0.75);
+      border: 1px solid rgba(110, 231, 183, 0.28);
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(6, 78, 59, 0.75);
+      color: var(--white);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .icon-btn:hover {
+      background: var(--green-700);
+    }
+
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .hero {
+      background: linear-gradient(155deg, var(--green-800), var(--green-900));
+      color: var(--white);
+      padding: 28px 20px 30px;
+      text-align: center;
+    }
+
+    .emblem {
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 2px solid rgba(252, 211, 77, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .hero p {
+      margin: 6px 0 0;
+      font-size: 14px;
+      color: #D1FAE5;
+    }
+
+    .home-body {
+      flex: 1;
+      background: var(--white);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      text-align: center;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+    }
+
+    .stats-grid .label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .stats-grid .val {
+      display: block;
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      min-height: 54px;
+      border: none;
+      border-radius: 16px;
+      background: var(--green-600);
+      color: var(--white);
+      font-family: inherit;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--green-700);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.99);
+    }
+
+    .btn-secondary {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 16px;
+      border: 1px solid rgba(4, 120, 87, 0.22);
+      background: var(--green-50);
+      color: var(--green-900);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .progress-track {
+      height: 6px;
+      width: 100%;
+      background: var(--green-100);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--green-600);
+      transition: width 0.2s ease;
+    }
+
+    .play-meta {
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 20px 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .play-body {
+      flex: 1;
+      padding: 8px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .q-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(6, 78, 59, 0.05);
+    }
+
+    .q-card h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.4;
+      font-weight: 700;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .opt-btn {
+      width: 100%;
+      min-height: 54px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--white);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.14s ease, background-color 0.14s ease;
+    }
+
+    .opt-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .opt-letter {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: var(--green-50);
+      border: 1px solid var(--green-100);
+      color: var(--green-800);
+      font-weight: 700;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .opt-btn.correct {
+      background: var(--green-600);
+      border-color: var(--green-600);
+      color: var(--white);
+    }
+
+    .opt-btn.correct .opt-letter {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.35);
+      color: var(--white);
+    }
+
+    .opt-btn.wrong {
+      background: var(--rose-50);
+      border-color: var(--rose-600);
+      color: #881337;
+    }
+
+    .opt-btn.wrong .opt-letter {
+      background: var(--rose-600);
+      border-color: var(--rose-600);
+      color: var(--white);
+    }
+
+    .center-pad {
+      flex: 1;
+      background: var(--white);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .lb-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .lb-row {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .lb-row.me {
+      background: var(--green-600);
+      border-color: var(--green-600);
+      color: var(--white);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 44, 34, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 360px;
+      background: var(--white);
+      border-radius: 24px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .countdown-ring {
+      width: 78px;
+      height: 78px;
+      border-radius: 999px;
+      border: 4px solid var(--green-600);
+      background: var(--green-50);
+      color: var(--green-800);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 18px auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <main class="app-shell">
+      <header class="hud">
+        <div class="hud-left">
+          <button id="backBtn" class="icon-btn" style="display:none" aria-label="হোম">←</button>
+          <span class="brand-title">Quiz Master BD</span>
+        </div>
+        <div class="hud-right">
+          <div class="coin-pill">
+            <span>🪙</span>
+            <span id="coinBalance" class="mono">০</span>
+          </div>
+          <button id="muteBtn" class="icon-btn" aria-label="সাউন্ড">🔊</button>
+        </div>
+      </header>
+
+      <!-- HOME SCREEN -->
+      <section id="homeScreen" class="screen active">
+        <div class="hero">
+          <div class="emblem">
+            <svg width="42" height="42" viewBox="0 0 32 32" fill="none">
+              <path d="M16 4C13 9 12.5 14 16 18.5C19.5 14 19 9 16 4Z" fill="#FFFFFF" />
+              <path d="M8 9.5C8.8 14 11.2 17.2 15.2 18.6C14 14.2 11.8 11 8 9.5Z" fill="#D1FAE5" />
+              <path d="M24 9.5C23.2 14 20.8 17.2 16.8 18.6C18 14.2 20.2 11 24 9.5Z" fill="#D1FAE5" />
+              <path d="M6 22C9.5 24 12.8 24.6 16 24.6C19.2 24.6 22.5 24 26 22" stroke="#FCD34D" stroke-width="2.2" stroke-linecap="round" />
+            </svg>
+          </div>
+          <h1>কুইজ মাস্টার বিডি</h1>
+          <p>বাংলা সাধারণ জ্ঞানের ৫০টি প্রশ্ন</p>
+        </div>
+
+        <div class="home-body">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <div>
+                <div style="font-size:12px;color:var(--muted);">খেলোয়াড়</div>
+                <div id="playerNameDisplay" style="font-size:16px;font-weight:700;">আপনি (খেলোয়াড়)</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:12px;color:var(--muted);">সর্বোচ্চ স্কোর</div>
+                <div id="bestStreakDisplay" class="mono" style="font-size:17px;font-weight:700;color:var(--green-700);">০/৫০</div>
+              </div>
+            </div>
+
+            <div class="stats-grid">
+              <div><span class="label">মোট প্রশ্ন</span><span class="val mono">৫০</span></div>
+              <div><span class="label">সঠিক উত্তর</span><span class="val mono" style="color:var(--green-700)">+১০ কয়েন</span></div>
+              <div><span class="label">ভুল উত্তর</span><span class="val" style="color:var(--rose-600)">গেম ওভার</span></div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button id="playBtn" class="btn-primary">▶ খেলা শুরু করুন</button>
+            <button id="leaderboardBtn" class="btn-secondary">🏆 লিডারবোর্ড</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PLAY SCREEN -->
+      <section id="playScreen" class="screen">
+        <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+        <div class="play-meta">
+          <span><strong id="qCategory" style="color:var(--green-800)"></strong> · প্রশ্ন <span id="qCounter" class="mono"></span></span>
+          <span class="mono" style="color:var(--green-700);font-weight:700;">+<span id="runCoinsDisplay">০</span> কয়েন</span>
+        </div>
+        <div class="play-body">
+          <div class="q-card"><h2 id="qText"></h2></div>
+          <div id="optionsContainer" class="options"></div>
+          <div style="text-align:center;font-size:12px;color:var(--muted);">সঠিক উত্তর +১০ কয়েন · ভুল উত্তরে গেম ওভার</div>
+        </div>
+      </section>
+
+      <!-- GAME OVER SCREEN -->
+      <section id="gameOverScreen" class="screen">
+        <div class="center-pad">
+          <div style="text-align:center;">
+            <div style="font-size:44px;margin-bottom:8px;">❌</div>
+            <h1 style="margin:0;font-size:24px;">গেম ওভার</h1>
+            <p style="margin:6px 0 18px;font-size:14px;color:var(--muted);">উত্তরটি সঠিক ছিল না। আবার চেষ্টা করুন অথবা বিজ্ঞাপন দেখে চালিয়ে যান।</p>
+
+            <div class="stats-grid" style="background:var(--surface-bg);border-radius:16px;border:1px solid var(--border);">
+              <div><span class="label">সঠিক উত্তর</span><span id="goCorrect" class="val mono">০</span></div>
+              <div><span class="label">অর্জিত কয়েন</span><span id="goCoins" class="val mono" style="color:var(--green-700)">+০</span></div>
+              <div><span class="label">সেরা স্কোর</span><span id="goBest" class="val mono" style="color:var(--gold)">০</span></div>
+            </div>
+
+            <div id="correctAnswerBox" style="margin-top:14px;padding:12px;border-radius:14px;background:var(--green-50);border:1px solid var(--green-100);text-align:left;font-size:14px;"></div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button id="watchAdBtn" class="btn-primary">📺 বিজ্ঞাপন দেখে চালিয়ে যান</button>
+            <button id="playAgainBtn" class="btn-secondary">↻ আবার খেলুন</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- LEADERBOARD SCREEN -->
+      <section id="leaderboardScreen" class="screen">
+        <div style="background:var(--white);padding:16px 20px;border-bottom:1px solid var(--border);">
+          <h1 style="margin:0;font-size:20px;">শীর্ষ খেলোয়াড়দের তালিকা</h1>
+          <p id="lbSummary" style="margin:4px 0 0;font-size:12px;color:var(--muted);"></p>
+        </div>
+        <div id="lbList" class="lb-list"></div>
+        <div style="background:var(--white);padding:14px 20px;border-top:1px solid var(--border);">
+          <button id="lbPlayBtn" class="btn-primary">▶ এখনই খেলুন</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- REWARDED AD MODAL -->
+  <div id="adModal" class="modal-backdrop">
+    <div class="modal-card">
+      <h2 style="margin:0;font-size:20px;">রিওয়ার্ড বিজ্ঞাপন চলছে</h2>
+      <p style="margin:6px 0 0;font-size:13px;color:var(--muted);">বিজ্ঞাপন শেষ হলে আপনার বর্তমান স্কোরসহ খেলা চালিয়ে যেতে পারবেন।</p>
+      <div id="adCountdown" class="countdown-ring mono">৫</div>
+      <button id="claimAdBtn" class="btn-primary" disabled>খেলা চালিয়ে যান</button>
+      <button id="cancelAdBtn" style="margin-top:10px;border:none;background:none;color:var(--muted);font-family:inherit;font-size:13px;cursor:pointer;">বাতিল করুন</button>
+    </div>
+  </div>
+
+  <script>
+    const QUESTIONS = [
+      { id: 1, category: 'বাংলাদেশ', question: 'বাংলাদেশের জাতীয় ফুল কী?', options: ['গোলাপ', 'শাপলা', 'কদম', 'জবা'], correctIndex: 1 },
+      { id: 2, category: 'মুক্তিযুদ্ধ ও ইতিহাস', question: 'বাংলাদেশের বিজয় দিবস কবে পালিত হয়?', options: ['২৬ মার্চ', '২১ ফেব্রুয়ারি', '১৬ ডিসেম্বর', '১৭ এপ্রিল'], correctIndex: 2 },
+      { id: 3, category: 'মুক্তিযুদ্ধ ও ইতিহাস', question: 'বাংলাদেশের স্বাধীনতা দিবস কবে?', options: ['২৬ মার্চ', '১৬ ডিসেম্বর', '৭ মার্চ', '১৪ ডিসেম্বর'], correctIndex: 0 },
+      { id: 4, category: 'সাহিত্য ও সংস্কৃতি', question: 'বাংলাদেশের জাতীয় সংগীতের রচয়িতা কে?', options: ['কাজী নজরুল ইসলাম', 'জীবনানন্দ দাশ', 'রবীন্দ্রনাথ ঠাকুর', 'মাইকেল মধুসূদন দত্ত'], correctIndex: 2 },
+      { id: 5, category: 'সাহিত্য ও সংস্কৃতি', question: 'বাংলাদেশের জাতীয় কবির নাম কী?', options: ['জসীমউদ্‌দীন', 'কাজী নজরুল ইসলাম', 'শামসুর রাহমান', 'রবীন্দ্রনাথ ঠাকুর'], correctIndex: 1 },
+      { id: 6, category: 'ভূগোল', question: 'বাংলাদেশের প্রশস্ততম নদী কোনটি?', options: ['পদ্মা', 'যমুনা', 'মেঘনা', 'কর্ণফুলী'], correctIndex: 2 },
+      { id: 7, category: 'ভূগোল', question: 'আয়তনে বাংলাদেশের বৃহত্তম জেলা কোনটি?', options: ['রাঙামাটি', 'চট্টগ্রাম', 'সিলেট', 'দিনাজপুর'], correctIndex: 0 },
+      { id: 8, category: 'বাংলাদেশ', question: 'বাংলাদেশে বর্তমানে মোট বিভাগ কয়টি?', options: ['৬টি', '৭টি', '৮টি', '৯টি'], correctIndex: 2 },
+      { id: 9, category: 'বাংলাদেশ', question: 'বাংলাদেশের জাতীয় পশু কী?', options: ['চিত্রা হরিণ', 'রয়েল বেঙ্গল টাইগার', 'এশীয় হাতি', 'নীলগাই'], correctIndex: 1 },
+      { id: 10, category: 'বাংলাদেশ', question: 'বাংলাদেশের জাতীয় পাখি কী?', options: ['ময়না', 'টিয়া', 'দোয়েল', 'মাছরাঙা'], correctIndex: 2 },
+      { id: 11, category: 'বাংলাদেশ', question: 'বাংলাদেশের জাতীয় ফল কী?', options: ['আম', 'কাঁঠাল', 'লিচু', 'পেয়ারা'], correctIndex: 1 },
+      { id: 12, category: 'ভূগোল', question: 'সুন্দরবনের বাংলাদেশ অংশ মূলত কোন বিভাগে অবস্থিত?', options: ['রাজশাহী', 'রংপুর', 'খুলনা', 'সিলেট'], correctIndex: 2 },
+      { id: 13, category: 'সাহিত্য ও সংস্কৃতি', question: 'বাংলা নববর্ষ পহেলা বৈশাখ কোন বাংলা মাসে পালিত হয়?', options: ['চৈত্র', 'বৈশাখ', 'জ্যৈষ্ঠ', 'ফাল্গুন'], correctIndex: 1 },
+      { id: 14, category: 'মুক্তিযুদ্ধ ও ইতিহাস', question: 'আন্তর্জাতিক মাতৃভাষা দিবস ও শহিদ দিবস কত তারিখে?', options: ['২১ ফেব্রুয়ারি', '২৬ মার্চ', '১৬ ডিসেম্বর', '১০ জানুয়ারি'], correctIndex: 0 },
+      { id: 15, category: 'বাংলাদেশ', question: 'পদ্মা মূল সেতুর দৈর্ঘ্য কত কিলোমিটার?', options: ['৪.৮০ কিমি', '৫.৫০ কিমি', '৬.১৫ কিমি', '৭.২৫ কিমি'], correctIndex: 2 },
+      { id: 16, category: 'অর্থনীতি ও সংস্থা', question: 'বাংলাদেশের কেন্দ্রীয় ব্যাংকের নাম কী?', options: ['সোনালী ব্যাংক', 'জনতা ব্যাংক', 'বাংলাদেশ ব্যাংক', 'অগ্রণী ব্যাংক'], correctIndex: 2 },
+      { id: 17, category: 'বাংলাদেশ', question: 'বাংলাদেশের সরকারি মুদ্রার নাম কী?', options: ['রুপি', 'টাকা', 'দিনার', 'রিয়াল'], correctIndex: 1 },
+      { id: 18, category: 'ইতিহাস', question: 'ঢাকা বিশ্ববিদ্যালয় কত সালে প্রতিষ্ঠিত হয়?', options: ['১৯০৫ সালে', '১৯২১ সালে', '১৯৪৭ সালে', '১৯৫২ সালে'], correctIndex: 1 },
+      { id: 19, category: 'বাংলাদেশ', question: 'বাংলাদেশের জাতীয় সংসদের প্রত্যক্ষ নির্বাচিত আসন কয়টি?', options: ['২৫০টি', '৩০০টি', '৩৫০টি', '৪০০টি'], correctIndex: 1 },
+      { id: 20, category: 'ভূগোল', question: 'বাংলাদেশের একমাত্র প্রবাল দ্বীপের নাম কী?', options: ['হাতিয়া', 'সন্দ্বীপ', 'সেন্ট মার্টিন', 'কুতুবদিয়া'], correctIndex: 2 },
+      { id: 21, category: 'ভূগোল', question: 'পৃথিবীর বৃহত্তম ম্যানগ্রোভ বন কোনটি?', options: ['আমাজন', 'সুন্দরবন', 'কঙ্গো বন', 'ব্ল্যাক ফরেস্ট'], correctIndex: 1 },
+      { id: 22, category: 'বিজ্ঞান ও মহাকাশ', question: 'সূর্যের সবচেয়ে কাছের গ্রহ কোনটি?', options: ['শুক্র', 'বুধ', 'মঙ্গল', 'পৃথিবী'], correctIndex: 1 },
+      { id: 23, category: 'বিজ্ঞান ও মহাকাশ', question: 'সৌরজগতের বৃহত্তম গ্রহ কোনটি?', options: ['শনি', 'বৃহস্পতি', 'ইউরেনাস', 'নেপচুন'], correctIndex: 1 },
+      { id: 24, category: 'বিজ্ঞান ও মহাকাশ', question: 'পৃথিবীর একমাত্র প্রাকৃতিক উপগ্রহ কোনটি?', options: ['ফোবোস', 'টাইটান', 'চাঁদ', 'ইউরোপা'], correctIndex: 2 },
+      { id: 25, category: 'বিজ্ঞান', question: 'একজন প্রাপ্তবয়স্ক মানুষের শরীরে মোট হাড়ের সংখ্যা কতটি?', options: ['১৮৬টি', '১৯৬টি', '২০৬টি', '২১৬টি'], correctIndex: 2 },
+      { id: 26, category: 'বিজ্ঞান', question: 'পানির রাসায়নিক সংকেত কী?', options: ['CO₂', 'H₂O', 'O₂', 'NaCl'], correctIndex: 1 },
+      { id: 27, category: 'বিজ্ঞান', question: 'উদ্ভিদ সালোকসংশ্লেষণ প্রক্রিয়ায় কোন গ্যাস ত্যাগ করে?', options: ['কার্বন ডাই-অক্সাইড', 'নাইট্রোজেন', 'অক্সিজেন', 'হাইড্রোজেন'], correctIndex: 2 },
+      { id: 28, category: 'বিজ্ঞান ও স্বাস্থ্য', question: 'কোন ভিটামিনের অভাবে রাতকানা রোগ হয়?', options: ['ভিটামিন এ', 'ভিটামিন বি', 'ভিটামিন সি', 'ভিটামিন ডি'], correctIndex: 0 },
+      { id: 29, category: 'আবিষ্কার', question: 'বৈদ্যুতিক বাল্বের প্রধান আবিষ্কারক কে?', options: ['আইজ্যাক নিউটন', 'টমাস আলভা এডিসন', 'গ্যালিলিও', 'মাইকেল ফ্যারাডে'], correctIndex: 1 },
+      { id: 30, category: 'আবিষ্কার', question: 'টেলিফোনের আবিষ্কারক কে?', options: ['গুগলিয়েলমো মার্কনি', 'আলেকজান্ডার গ্রাহাম বেল', 'জেমস ওয়াট', 'রাইট ভ্রাতৃদ্বয়'], correctIndex: 1 },
+      { id: 31, category: 'প্রযুক্তি', question: 'আধুনিক কম্পিউটারের জনক কাকে বলা হয়?', options: ['অ্যালান টিউরিং', 'চার্লস ব্যাবেজ', 'টিম বার্নার্স-লি', 'বিল গেটস'], correctIndex: 1 },
+      { id: 32, category: 'বিশ্ব ভূগোল', question: 'পৃথিবীর বৃহত্তম ও গভীরতম মহাসাগর কোনটি?', options: ['আটলান্টিক মহাসাগর', 'ভারত মহাসাগর', 'প্রশান্ত মহাসাগর', 'দক্ষিণ মহাসাগর'], correctIndex: 2 },
+      { id: 33, category: 'বিশ্ব ভূগোল', question: 'পৃথিবীর দীর্ঘতম নদী কোনটি?', options: ['আমাজন নদী', 'নীল নদ', 'মিসিসিপি নদী', 'ইয়াংজি নদী'], correctIndex: 1 },
+      { id: 34, category: 'বিশ্ব ভূগোল', question: 'পৃথিবীর সর্বোচ্চ পর্বতশৃঙ্গ কোনটি?', options: ['কে-টু', 'কাঞ্চনজঙ্ঘা', 'মাউন্ট এভারেস্ট', 'কিলিমাঞ্জারো'], correctIndex: 2 },
+      { id: 35, category: 'বিশ্ব সাধারণ জ্ঞান', question: 'জাপানের রাজধানীর নাম কী?', options: ['ওসাকা', 'কিয়োটো', 'টোকিও', 'হিরোশিমা'], correctIndex: 2 },
+      { id: 36, category: 'বিশ্ব সাধারণ জ্ঞান', question: 'অস্ট্রেলিয়ার রাজধানীর নাম কী?', options: ['সিডনি', 'মেলবোর্ন', 'ক্যানবেরা', 'পার্থ'], correctIndex: 2 },
+      { id: 37, category: 'বিশ্ব সাধারণ জ্ঞান', question: 'কানাডার রাজধানীর নাম কী?', options: ['টরন্টো', 'ভ্যাঙ্কুভার', 'মন্ট্রিল', 'অটোয়া'], correctIndex: 3 },
+      { id: 38, category: 'বিশ্ব সাধারণ জ্ঞান', question: 'মিসরের রাজধানীর নাম কী?', options: ['আলেকজান্দ্রিয়া', 'কায়রো', 'লুক্সর', 'গিজা'], correctIndex: 1 },
+      { id: 39, category: 'বিশ্ব সাধারণ জ্ঞান', question: 'কোন দেশকে "সূর্যোদয়ের দেশ" বলা হয়?', options: ['নরওয়ে', 'জাপান', 'দক্ষিণ কোরিয়া', 'থাইল্যান্ড'], correctIndex: 1 },
+      { id: 40, category: 'বিশ্ব সাধারণ জ্ঞান', question: 'কোন দেশকে "হাজার হ্রদের দেশ" বলা হয়?', options: ['সুইজারল্যান্ড', 'ফিনল্যান্ড', 'আইসল্যান্ড', 'সুইডেন'], correctIndex: 1 },
+      { id: 41, category: 'সাহিত্য ও সংস্কৃতি', question: 'রবীন্দ্রনাথ ঠাকুর কোন গ্রন্থের জন্য নোবেল পুরস্কার লাভ করেন?', options: ['সোনার তরী', 'বলাকা', 'গীতাঞ্জলি', 'মানসী'], correctIndex: 2 },
+      { id: 42, category: 'সাহিত্য ও সংস্কৃতি', question: 'কাজী নজরুল ইসলামের প্রথম প্রকাশিত কাব্যগ্রন্থ কোনটি?', options: ['বিষের বাঁশি', 'অগ্নিবীণা', 'সঞ্চিতা', 'দোলনচাঁপা'], correctIndex: 1 },
+      { id: 43, category: 'সাহিত্য ও সংস্কৃতি', question: '"আমার ভাইয়ের রক্তে রাঙানো একুশে ফেব্রুয়ারি" গানটির সুরকার কে?', options: ['আবদুল গাফফার চৌধুরী', 'আলতাফ মাহমুদ', 'সত্য সাহা', 'সমর দাস'], correctIndex: 1 },
+      { id: 44, category: 'ক্রীড়াঙ্গন', question: 'বাংলাদেশের জাতীয় খেলা কোনটি?', options: ['ক্রিকেট', 'ফুটবল', 'কাবাডি', 'হকি'], correctIndex: 2 },
+      { id: 45, category: 'ক্রীড়াঙ্গন', question: 'আন্তর্জাতিক ক্রিকেট ম্যাচে এক দলে কতজন খেলোয়াড় মাঠে খেলেন?', options: ['৯ জন', '১০ জন', '১১ জন', '১২ জন'], correctIndex: 2 },
+      { id: 46, category: 'ক্রীড়াঙ্গন', question: 'ফিফা ফুটবল বিশ্বকাপ ২০২২-এর চ্যাম্পিয়ন কোন দেশ?', options: ['ফ্রান্স', 'ব্রাজিল', 'আর্জেন্টিনা', 'ক্রোয়েশিয়া'], correctIndex: 2 },
+      { id: 47, category: 'ক্রীড়াঙ্গন', question: 'অলিম্পিক গেমসের পতাকায় কয়টি পরস্পর সংযুক্ত বৃত্ত থাকে?', options: ['৪টি', '৫টি', '৬টি', '৭টি'], correctIndex: 1 },
+      { id: 48, category: 'বিজ্ঞান', question: 'মানবদেহের রক্তে অক্সিজেন পরিবহন করে কোন উপাদান?', options: ['হিমোগ্লোবিন', 'ইনসুলিন', 'ক্যালসিয়াম', 'প্লাটিলেট'], correctIndex: 0 },
+      { id: 49, category: 'ইতিহাস', question: 'প্রাচীন বাংলার প্রাচীনতম জনপদ কোনটি?', options: ['বঙ্গ', 'সমতট', 'পুণ্ড্রবর্ধন', 'হরিকেল'], correctIndex: 2 },
+      { id: 50, category: 'আন্তর্জাতিক সংস্থা', question: 'জাতিসংঘের (UN) সদর দপ্তর কোথায় অবস্থিত?', options: ['জেনেভা', 'লন্ডন', 'প্যারিস', 'নিউইয়র্ক'], correctIndex: 3 }
+    ];
+
+    const SEED_PLAYERS = [
+      { name: 'তানভীর আহমেদ', totalCoins: 640, bestStreak: 42 },
+      { name: 'সাদিয়া ইসলাম', totalCoins: 510, bestStreak: 36 },
+      { name: 'মেহেদী হাসান', totalCoins: 430, bestStreak: 29 },
+      { name: 'নুসরাত জাহান', totalCoins: 350, bestStreak: 24 },
+      { name: 'রাফিউল করিম', totalCoins: 260, bestStreak: 19 },
+      { name: 'ফারিহা তাবাসসুম', totalCoins: 180, bestStreak: 14 },
+      { name: 'আরিফুল ইসলাম', totalCoins: 120, bestStreak: 10 }
+    ];
+
+    const BN_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    const OPT_LABELS = ['ক', 'খ', 'গ', 'ঘ'];
+    const toBn = (n) => String(n).replace(/[0-9]/g, (d) => BN_DIGITS[Number(d)]);
+
+    let totalCoins = Number(localStorage.getItem('qmbd_total_coins_v1') || 0);
+    let bestStreak = Number(localStorage.getItem('qmbd_best_streak_v1') || 0);
+    let playerName = localStorage.getItem('qmbd_player_name_v1') || 'আপনি (খেলোয়াড়)';
+    let muted = localStorage.getItem('qmbd_muted_v1') === 'true';
+
+    let deck = [];
+    let currentIndex = 0;
+    let runCoins = 0;
+    let runCorrect = 0;
+    let locked = false;
+    let adTimer = null;
+    let adLeft = 5;
+
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) {
+        playerName = [tg.initDataUnsafe.user.first_name, tg.initDataUnsafe.user.last_name].filter(Boolean).join(' ');
+      }
+    }
+
+    let audioCtx = null;
+    function beep(freq, dur, type = 'sine') {
+      if (muted) return;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + dur + 0.02);
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach((el) => el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.getElementById('backBtn').style.display = id === 'homeScreen' ? 'none' : 'inline-flex';
+      document.getElementById('coinBalance').textContent = toBn(totalCoins);
+      document.getElementById('bestStreakDisplay').textContent = `${toBn(bestStreak)}/৫০`;
+      document.getElementById('playerNameDisplay').textContent = playerName;
+    }
+
+    function shuffle(arr) {
+      const copy = arr.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function startQuiz() {
+      deck = shuffle(QUESTIONS);
+      currentIndex = 0;
+      runCoins = 0;
+      runCorrect = 0;
+      locked = false;
+      renderQuestion();
+      showScreen('playScreen');
+    }
+
+    function renderQuestion() {
+      const q = deck[currentIndex];
+      document.getElementById('progressFill').style.width = `${((currentIndex + 1) / deck.length) * 100}%`;
+      document.getElementById('qCategory').textContent = q.category;
+      document.getElementById('qCounter').textContent = `${toBn(currentIndex + 1)}/${toBn(deck.length)}`;
+      document.getElementById('runCoinsDisplay').textContent = toBn(runCoins);
+      document.getElementById('qText').textContent = q.question;
+
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerHTML = `<span class="opt-left"><span class="opt-letter">${OPT_LABELS[idx]}</span><span>${opt}</span></span><span></span>`;
+        btn.onclick = () => selectAnswer(idx, btn);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectAnswer(idx, clickedBtn) {
+      if (locked) return;
+      locked = true;
+      const q = deck[currentIndex];
+      const buttons = document.querySelectorAll('.opt-btn');
+
+      if (idx === q.correctIndex) {
+        clickedBtn.classList.add('correct');
+        clickedBtn.lastElementChild.textContent = '✓ সঠিক';
+        beep(660, 0.14, 'triangle');
+        runCorrect += 1;
+        runCoins += 10;
+        totalCoins += 10;
+        if (runCorrect > bestStreak) bestStreak = runCorrect;
+        localStorage.setItem('qmbd_total_coins_v1', String(totalCoins));
+        localStorage.setItem('qmbd_best_streak_v1', String(bestStreak));
+        document.getElementById('coinBalance').textContent = toBn(totalCoins);
+        document.getElementById('runCoinsDisplay').textContent = toBn(runCoins);
+
+        setTimeout(() => {
+          locked = false;
+          currentIndex += 1;
+          if (currentIndex >= deck.length) {
+            startQuiz();
+          } else {
+            renderQuestion();
+          }
+        }, 700);
+      } else {
+        clickedBtn.classList.add('wrong');
+        clickedBtn.lastElementChild.textContent = '✕ ভুল';
+        buttons[q.correctIndex].classList.add('correct');
+        beep(180, 0.25, 'sawtooth');
+        setTimeout(() => {
+          document.getElementById('goCorrect').textContent = toBn(runCorrect);
+          document.getElementById('goCoins').textContent = `+${toBn(runCoins)}`;
+          document.getElementById('goBest').textContent = toBn(bestStreak);
+          document.getElementById('correctAnswerBox').innerHTML = `সঠিক উত্তর ছিল: <strong>${OPT_LABELS[q.correctIndex]}. ${q.options[q.correctIndex]}</strong>`;
+          showScreen('gameOverScreen');
+        }, 850);
+      }
+    }
+
+    function renderLeaderboard() {
+      const list = [...SEED_PLAYERS, { name: playerName, totalCoins, bestStreak, me: true }].sort(
+        (a, b) => b.totalCoins - a.totalCoins
+      );
+      const myRank = list.findIndex((x) => x.me) + 1;
+      document.getElementById('lbSummary').textContent = `আপনার অবস্থান: #${toBn(myRank)} · মোট ${toBn(totalCoins)} কয়েন`;
+      const el = document.getElementById('lbList');
+      el.innerHTML = '';
+      list.forEach((p, idx) => {
+        const row = document.createElement('div');
+        row.className = `lb-row${p.me ? ' me' : ''}`;
+        row.innerHTML = `
+          <div><strong>${toBn(idx + 1)}. ${p.name}</strong><div style="font-size:12px;opacity:0.8;">সেরা ধারা: ${toBn(p.bestStreak)}</div></div>
+          <div class="mono" style="font-weight:700;">🪙 ${toBn(p.totalCoins)}</div>
+        `;
+        el.appendChild(row);
+      });
+      showScreen('leaderboardScreen');
+    }
+
+    document.getElementById('playBtn').onclick = startQuiz;
+    document.getElementById('playAgainBtn').onclick = startQuiz;
+    document.getElementById('lbPlayBtn').onclick = startQuiz;
+    document.getElementById('leaderboardBtn').onclick = renderLeaderboard;
+    document.getElementById('backBtn').onclick = () => showScreen('homeScreen');
+
+    document.getElementById('muteBtn').onclick = () => {
+      muted = !muted;
+      localStorage.setItem('qmbd_muted_v1', String(muted));
+      document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
+    };
+
+    document.getElementById('watchAdBtn').onclick = () => {
+      adLeft = 5;
+      document.getElementById('adCountdown').textContent = toBn(adLeft);
+      document.getElementById('claimAdBtn').disabled = true;
+      document.getElementById('adModal').classList.add('open');
+      clearInterval(adTimer);
+      adTimer = setInterval(() => {
+        adLeft -= 1;
+        document.getElementById('adCountdown').textContent = toBn(Math.max(0, adLeft));
+        if (adLeft <= 0) {
+          clearInterval(adTimer);
+          document.getElementById('claimAdBtn').disabled = false;
+        }
+      }, 1000);
+    };
+
+    document.getElementById('claimAdBtn').onclick = () => {
+      if (adLeft > 0) return;
+      document.getElementById('adModal').classList.remove('open');
+      locked = false;
+      currentIndex = Math.min(currentIndex + 1, deck.length - 1);
+      renderQuestion();
+      showScreen('playScreen');
+    };
+
+    document.getElementById('cancelAdBtn').onclick = () => {
+      clearInterval(adTimer);
+      document.getElementById('adModal').classList.remove('open');
+    };
+
+    document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
+    showScreen('homeScreen');
+  </script>
+</body>
+</html>
